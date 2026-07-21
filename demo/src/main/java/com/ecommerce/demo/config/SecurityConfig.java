@@ -3,6 +3,7 @@ package com.ecommerce.demo.config;
 import com.ecommerce.demo.security.JwtFilter;
 import com.ecommerce.demo.security.JwtUtil;
 import com.ecommerce.demo.security.RateLimitFilter;
+import com.ecommerce.demo.service.TokenBlacklistService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -23,7 +24,9 @@ public class SecurityConfig {
     public PasswordEncoder passwordEncoder(){
         return new BCryptPasswordEncoder();
     }
-    public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtUtil jwtUtil, StringRedisTemplate redisTemplate) throws Exception {
+
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtUtil jwtUtil, StringRedisTemplate redisTemplate, TokenBlacklistService tokenBlacklistService) throws Exception {
 
         http
                 .csrf(csrf -> csrf.disable())
@@ -46,9 +49,10 @@ public class SecurityConfig {
                         .anyRequest().authenticated()
                 );
         http.addFilterBefore(new RateLimitFilter(redisTemplate), UsernamePasswordAuthenticationFilter.class);
-        http.addFilterBefore(new JwtFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class);
+        http.addFilterBefore(new JwtFilter(jwtUtil, tokenBlacklistService), UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
+    @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();
     }

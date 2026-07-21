@@ -44,6 +44,7 @@ public class UserService {
         }else {
             user.setRole(dto.getRole().toUpperCase());
         }
+        user.setEnabled(false);
 
         return repo.save(user);
     }

@@ -16,6 +16,15 @@ public class User {
     private int id;
 
     private String role;
+    private boolean enabled;
+
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+    }
 
     public String getRole() {
         return role;

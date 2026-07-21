@@ -4,10 +4,12 @@ import com.ecommerce.demo.entity.RefreshToken;
 import com.ecommerce.demo.entity.User;
 import com.ecommerce.demo.repository.RefreshTokenRepository;
 import jakarta.transaction.Transactional;
+import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.util.UUID;
 
+@Service
 public class RefreshTokenService {
     private final RefreshTokenRepository refreshTokenRepository;
     public RefreshTokenService(RefreshTokenRepository refreshTokenRepository){
@@ -19,7 +21,9 @@ public class RefreshTokenService {
         RefreshToken refreshToken = new RefreshToken();
         refreshToken.setToken(UUID.randomUUID().toString());
         refreshToken.setUser(user);
-        refreshToken.setExpiryDate(Instant().now().plusSeconds(7*24*60*60));
+        refreshToken.setExpiryDate(
+                Instant.now().plusSeconds(7 * 24 * 60 * 60)
+        );
         return refreshTokenRepository.save(refreshToken);
     }
     public RefreshToken verifyRefreshToken(String token){
@@ -27,7 +31,7 @@ public class RefreshTokenService {
                 .orElseThrow(() -> new RuntimeException("Invalid refresh token"));
         if(refreshToken.getExpiryDate().isBefore(Instant.now())){
             refreshTokenRepository.delete(refreshToken);
-            throw new RuntimeException("refresh token expired")
+            throw new RuntimeException("refresh token expired");
         }
         return refreshToken;
     }
